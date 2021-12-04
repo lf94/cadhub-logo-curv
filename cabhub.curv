@@ -1,0 +1,102 @@
+let
+  torus_major = 118 * 2;
+  torus_minor = 140;
+  torus_diameter = torus_major + torus_minor;
+
+  gear_teeth_total = 11;
+  gear_height = 55;
+  gear_length_inner = 80;
+  gear_length_outer = 55;
+  gear_length_ratio = gear_length_outer/gear_length_inner;
+  gear_depth = torus_minor / 3;
+  gear_corner_round = 10;
+
+  donut = torus { major: torus_major, minor: torus_minor };
+
+  gear_tooth =
+    box [gear_length_inner, gear_depth, gear_height]
+    >> offset gear_corner_round
+    >> local_taper_xy {
+      range: [
+        -((gear_height / 2) + gear_corner_round),
+        (gear_height / 2) + gear_corner_round
+      ],
+      scale: [
+        [1, 1],
+        [gear_length_ratio, 1]
+      ]
+    };
+
+  gear_teeth = repeat_radial gear_teeth_total (
+    gear_tooth
+    >> rotate { angle: 90*deg, axis: X_axis }
+    >> move [0, -((gear_height + torus_minor + torus_major) / 2) + gear_corner_round, 0]
+  );
+
+  donutgear = ((smooth (gear_corner_round / 2)).union) [
+    donut,
+    gear_teeth
+  ] >> rotate { angle: 180*deg, axis: X_axis }
+  >> colour (webRGB [0xde, 0xaa, 0x87]);
+
+  icing = (file "./icing.curv")
+    >> move [-130, 160, 0]
+    >> extrude inf
+    >> stretch [3.2, 3.2, 1]
+    >> into intersection [donutgear]
+    >> offset 6
+    >> colour (webRGB [0xdf,0x5c,0xa0])
+  ;
+
+  sprinkle ss = [for (s in ss)
+    capsule (s.dim) >> rotate (s.angle) >> move (s.pos) >> colour (webRGB (s.color))
+  ];
+
+  sprinkles = [
+    { dim={ d: 15, from: [0, 0, 0], to:[39, 0, 0] }, angle=35*deg,
+      pos=[-40, 107, torus_minor / 2], color=[0x4f, 0x99, 0xf2]},
+    { dim={ d: 15, from: [0, 0, 0], to:[39, 0, 0] }, angle=35*deg,
+      pos=[0, 107, torus_minor / 2], color=[0xff, 0xff, 0xff]},
+    { dim={ d: 16, from: [0, 0, 0], to:[39, 0, 0] }, angle=20*deg,
+      pos=[35, 50, torus_minor / 2], color=[0xf0,0xc7,0x07]},
+    { dim={ d: 12, from: [0, 0, 4], to:[28, 0, 4] }, angle=80*deg,
+      pos=[100, 40, torus_minor / 2], color=[0xff, 0xff, 0xff]},
+    { dim={ d: 11, from: [0, 0, 4], to:[31, 0, 4] }, angle=20*deg,
+      pos=[100, 10, torus_minor / 2], color=[0x4f, 0x99, 0xf2]},
+    { dim={ d: 7, from: [0, 0, -6], to:[22, 0, -16] }, angle=110*deg,
+      pos=[70, -10, torus_minor / 2], color=[0xff, 0xff, 0xff]},
+    { dim={ d: 9, from: [0, 0, 6], to:[27, 0, 3] }, angle=20*deg,
+      pos=[120, -30, torus_minor / 2], color=[0xf0,0xc7,0x07]},
+    { dim={ d: 15, from: [0, 0, 3], to:[25, 0, 3] }, angle=125*deg,
+      pos=[100, -70, torus_minor / 2], color=[0x4f, 0x99, 0xf2]},
+    { dim={ d: 12, from: [0, 0, 3], to:[27, 0, 6] }, angle=80*deg,
+      pos=[50, -130, torus_minor / 2], color=[0xf0,0xc7,0x07]},
+    { dim={ d: 12, from: [0, 0, 0], to:[27, 0, 6] }, angle=120*deg,
+      pos=[100, -120, torus_minor / 2], color=[0xff,0xff,0xff]},
+    { dim={ d: 12, from: [0, 0, -3], to:[27, 0, -6] }, angle=45*deg,
+      pos=[30, -70, torus_minor / 2], color=[0xff,0xff,0xff]},
+    { dim={ d: 12, from: [0, 0, 0], to:[27, 0, -26] }, angle=15*deg,
+      pos=[-30, -60, torus_minor / 2], color=[0xf0,0xc7,0x07]},
+    { dim={ d: 15, from: [0, 0, 0], to:[25, 0, 0] }, angle=55*deg,
+      pos=[-30, -120, torus_minor / 2], color=[0x4f, 0x99, 0xf2]},
+    { dim={ d: 12, from: [0, 0, 3], to:[27, 0, 3] }, angle=0*deg,
+      pos=[-90, -90, torus_minor / 2], color=[0xf0,0xc7,0x07]},
+    { dim={ d: 15, from: [0, 0, 0], to:[27, 0, 0] }, angle=80*deg,
+      pos=[-60, -40, torus_minor / 2], color=[0xff,0xff,0xff]},
+    { dim={ d: 15, from: [0, 0, 0], to:[27, 0, 0] }, angle=110*deg,
+      pos=[-120, -70, torus_minor / 2], color=[0xff,0xff,0xff]},
+    { dim={ d: 12, from: [0, 0, 0], to:[30, 0, 0] }, angle=100*deg,
+      pos=[-90, 0, torus_minor / 2], color=[0x4f, 0x99, 0xf2]},
+    { dim={ d: 11, from: [0, 0, 0], to:[27, 0, 0] }, angle=90*deg,
+      pos=[-140, 20, torus_minor / 2], color=[0xf0,0xc7,0x07]},
+    { dim={ d: 9, from: [0, 0, 4], to:[27, 0, 0] }, angle=45*deg,
+      pos=[-90, 50, torus_minor / 2], color=[0xff,0xff,0xff]},
+  ];
+
+  logo = union [
+    donutgear,
+    icing,
+    ...(sprinkle sprinkles)
+  ];
+in
+logo
